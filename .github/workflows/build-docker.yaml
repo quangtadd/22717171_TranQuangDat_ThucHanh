@@ -1,0 +1,172 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+
+  # ==============================
+  # 1️⃣ Test trên MongoDB local
+  # ==============================
+  test:
+    name: Unit Tests (Mongo local)
+    runs-on: ubuntu-latest
+
+    # Dùng services để có MongoDB (và RabbitMQ nếu product cần connect)
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017            # MongoDB nghe ở localhost:27017 trong runner
+        # Nếu không cần auth cho test, không set username/password
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })' || exit 1"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+      rabbitmq:
+        image: rabbitmq:3-management # product gọi app.setupMessageBroker() -> cần amqp://localhost:5672
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'        # hoặc '20' tùy project
+
+      # Tạo .env cho từng service (trỏ về Mongo local)
+      - name: Create .env for services
+        run: |
+          # AUTH
+          mkdir -p auth
+          cat > auth/.env << 'EOF'
+          MONGODB_AUTH_URI=mongodb://127.0.0.1:27017/auth_test
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          # (tùy code auth cần thêm gì thì bổ sung)
+          EOF
+
+          # PRODUCT
+          mkdir -p product
+          cat > product/.env << 'EOF'
+          MONGODB_PRODUCT_URI=mongodb://127.0.0.1:27017/product_test
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          # RABBITMQ_URL nếu code product đọc từ env (khớp với app.setupMessageBroker())
+          RABBITMQ_URL=amqp://127.0.0.1:5672
+          EOF
+
+      # Cài deps & chạy test cho AUTH trước
+      - name: Install & Test (auth)
+        working-directory: ./auth
+        env:
+          # Một số lib native cần build tools; nếu cần có thể thêm:
+          # npm_config_build_from_source: true
+          NODE_ENV: test
+        run: |
+          npm ci
+          npm i -D chai@4.3.10 chai-http@4.4.0 mocha@10.3.0
+          # Chạy test auth: file test bạn đưa sẽ connect Mongo local, start app, register/login,...
+          npm test
+
+      # Khởi chạy AUTH ở nền để PRODUCT test có thể gọi http://localhost:3000/login
+      - name: Start auth server (background)
+        working-directory: ./auth
+        env:
+          NODE_ENV: test
+        run: |
+          nohup npm start >/tmp/auth.log 2>&1 &
+          # chờ port 3000 sẵn sàng
+          timeout 60 bash -c 'until echo > /dev/tcp/127.0.0.1/3000; do sleep 1; done'
+          echo "Auth is up"
+          # (tùy app có /health thì có thể dùng curl http://localhost:3000/health)
+
+      # Cài deps & chạy test cho PRODUCT (sẽ xin token từ AUTH vừa chạy)
+      - name: Install & Test (product)
+        working-directory: ./product
+        env:
+          NODE_ENV: test
+          LOGIN_TEST_USER: ${{ secrets.LOGIN_TEST_USER }}              # dùng trong bài test
+          LOGIN_TEST_PASSWORD: ${{ secrets.LOGIN_TEST_PASSWORD }}
+        run: |
+          npm ci
+          npm i -D chai@4.3.10 chai-http@4.4.0 mocha@10.3.0
+          npm test
+
+  # ==============================
+  # 2️⃣ Build & Push Docker Images
+  # ==============================
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: test                         # 🔒 Chỉ build/push khi test pass
+    strategy:
+      matrix:
+        service: [api-gateway, auth, product, order]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}                     # Thư mục service
+          file: ./${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64                  # build multi-arch
+
+  # ==============================
+  # 3️⃣ Deploy trên Windows Runner
+  # ==============================
+  deploy:
+    name: Deploy on Localhost (Windows Runner)
+    needs: build-and-push
+    runs-on: self-hosted          # Windows self-hosted runner
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # ⚠️ dùng biến này bên dưới
+    steps:
+      - name: Check Docker environment
+        shell: cmd
+        run: |
+          echo Checking Docker environment...
+          docker --version
+          docker-compose --version
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Stop and remove old containers
+        shell: cmd
+        run: |
+          echo Stopping old containers...
+          cd /d D:\HK1_25-26\Lập trình hướng dịch vụ\Thực hành\EProject-Phase-1
+          docker-compose down --remove-orphans
