@@ -24,7 +24,7 @@ Các service giao tiếp thông qua **RabbitMQ** và lưu trữ dữ liệu trê
 ---
 
 ## 🧱 Cấu trúc thư mục
-
+<pre> ```bash
 EProject-Phase-1/
 │
 ├── auth/ # Service quản lý người dùng và xác thực
@@ -63,7 +63,7 @@ EProject-Phase-1/
 ├── package.json
 ├── package-lock.json
 └── .gitignore
-
+``` </pre>
 
 ---
 
