@@ -86,57 +86,26 @@ class ProductController {
   }
   
 
-  // async getOrderStatus(req, res, next) {
-  //   const { orderId } = req.params;
-  //   const order = this.ordersMap.get(orderId);
-  //   if (!order) {
-  //     return res.status(404).json({ message: 'Order not found' });
-  //   }
-  //   return res.status(200).json(order);
-  // }
-  
-  // async getOrderStatus(req, res, next)
-  // {
-  //   const {orderId} = req.params;
-  //   const order = this.ordersMap.get(orderId);
-  //   if (!order)
-  //   {
-  //     return res.status(404).json({message: 'Order not found'});
-  //   }
-  //   return res.status(200).json(order);
-  // }
-
-    // async getOrderStatus(req, res, next)
-    // {
-    //   const {orderId} = req.params;
-    //   const order = this.ordersMap.get(orderId);
-    //   if(!order)
-    //   {
-    //     return res.status(404).json({Message: 'Order not found'})
-    //   }
-    //   return res.status(200).json(order);
-    // }
-
-  // async getOrderStatus(req, res, next)
-  // {
-  //   const {orderId} = req.params;
-  //   const order = this.ordersMap.get(orderId);
-  //   if(!order)
-  //   {
-  //     return res.status(404).json({Message: 'Order not found'});
-  //   }
-  //   return res.status(200).json(order)
-  // }
 
   async getOrderStatus(req, res, next)
   {
-    const{orderId} = req.params;
+    const {orderId} = req.params;
     const order = this.ordersMap.get(orderId);
     if(!order)
     {
       return res.status(404).json({Message: 'Order not found'});
     }
     return res.status(200).json(order)
+  }
+
+  async getProductbyId(req, res, next){
+    const {id} = req.params;
+    const product = await Product.findById(id);
+    if(!product)
+    {
+      return res.status(404).json({Message: 'Product not found'});
+    }
+    return res.status(200).json(product);
   }
 
   async getProducts(req, res, next) {
