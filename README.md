@@ -1,6 +1,6 @@
 # 🧩 EProject Phase 1 — Microservices with Node.js, MongoDB & RabbitMQ
 
-Dự án mô phỏng kiến trúc **Microservices** gồm 3 service chính:  
+Dự án mô phỏng kiến trúc **Microservices** gồm 4 service chính:  
 - `auth` — xác thực & quản lý người dùng  
 - `product` — quản lý sản phẩm và đặt hàng  
 - `order` — xử lý đơn hàng
