@@ -99,101 +99,78 @@ api-gateway → Gateway cho toàn hệ thống (port 3003)
 #### Auth - Đăng ký / Đăng nhập / Dashboard
 - Đăng ký thành công  
   ![auth-register-success](./public/results/auth-register-success.png)  
-  `./public/results/auth-register-success.png`
 
 - Đăng ký thất bại (ví dụ)  
   ![auth-register-fail1](./public/results/auth-register-fail1.png)  
-  `./public/results/auth-register-fail1.png`
 
 - Đăng ký thất bại 2  
   ![auth-register-fail2](./public/results/auth-register-fail2.png)  
-  `./public/results/auth-register-fail2.png`
 
 - Đăng nhập thành công  
   ![auth-login-success](./public/results/auth-login-success.png)  
-  `./public/results/auth-login-success.png`
 
 - Đăng nhập thất bại (1)  
   ![auth-login-fail](./public/results/auth-login-fail.png)  
-  `./public/results/auth-login-fail.png`
 
 - Đăng nhập thất bại (2)  
   ![auth-login-fail2](./public/results/auth-login-fail2.png)  
-  `./public/results/auth-login-fail2.png`
 
 - Đăng nhập thất bại (3)  
   ![auth-login-fail3](./public/results/auth-login-fail3.png)  
-  `./public/results/auth-login-fail3.png`
 
 - Dashboard - success  
   ![auth-dashboard-success](./public/results/auth-dashboard-success.png)  
-  `./public/results/auth-dashboard-success.png`
 
 - Dashboard - fail (1)  
   ![auth-dashboard-fail](./public/results/auth-dashboard-fail.png)  
-  `./public/results/auth-dashboard-fail.png`
 
 - Dashboard - fail (2)  
   ![auth-dashboard-fail2](./public/results/auth-dashboard-fail2.png)  
-  `./public/results/auth-dashboard-fail2.png`
 
 ---
 
 #### Product - create / get / buy
 - Tạo sản phẩm thành công  
   ![product-create-success](./public/results/product-create-success.png)  
-  `./public/results/product-create-success.png`
 
 - Tạo sản phẩm thất bại (1)  
   ![product-create-fail](./public/results/product-create-fail.png)  
-  `./public/results/product-create-fail.png`
 
 - Tạo sản phẩm thất bại (2)  
   ![product-create-fail2](./public/results/product-create-fail2.png)  
-  `./public/results/product-create-fail2.png`
 
 - Lấy danh sách sản phẩm thành công  
   ![product-get-success](./public/results/product-get-success.png)  
-  `./public/results/product-get-success.png`
 
 - Lấy danh sách sản phẩm thất bại  
   ![product-get-fail](./public/results/product-get-fail.png)  
-  `./public/results/product-get-fail.png`
 
 - Đặt hàng thành công  
   ![product-buy-success](./public/results/product-buy-success.png)  
-  `./public/results/product-buy-success.png`
 
 - Đặt hàng thất bại (1)  
   ![product-buy-fail](./public/results/product-buy-fail.png)  
-  `./public/results/product-buy-fail.png`
 
 - Đặt hàng thất bại (2)  
   ![product-buy-fail2](./public/results/product-buy-fail2.png)  
-  `./public/results/product-buy-fail2.png`
 
 - Đặt hàng thất bại (3)  
   ![product-buy-fail3](./public/results/product-buy-fail3.png)  
-  `./public/results/product-buy-fail3.png`
 
 ---
 
 #### Kiểm tra cơ sở dữ liệu / tổng quan
 - Kiểm tra databases (ảnh tổng quan)  
   ![Check-databases](./public/results/Check-databases.png)  
-  `./public/results/Check-databases.png`
 
 - Dữ liệu trong DB `auths`  
   ![data-auths](./public/results/data-auths.png)  
-  `./public/results/data-auths.png`
 
 - Dữ liệu trong DB `products`  
   ![data-products](./public/results/data-products.png)  
-  `./public/results/data-products.png`
 
 - Dữ liệu trong DB `orders`  
   ![data-orders](./public/results/data-orders.png)  
-  `./public/results/data-orders.png`
 
 ---
 
@@ -211,7 +188,6 @@ Password: guest
 Tại đây có thể xem các exchange, queue, và message giữa các service.
 - Queue trong RabbitMQ 
   ![RabbitMQ-Queue](./public/results/rabbitMQ.png)  
-  `./public/results/rabbitMQ.png`
 
 ### 4 🧹 Clean up (xóa container cũ)
 `docker-compose down -v`
