@@ -5,6 +5,7 @@ Dự án mô phỏng kiến trúc **Microservices** gồm 3 service chính:
 - `product` — quản lý sản phẩm và đặt hàng  
 - `order` — xử lý đơn hàng
 - `api-gateway` — đóng vai trò cổng giao tiếp trung tâm giữa client và các service khác (auth, product, order)
+  
 Các service giao tiếp thông qua **RabbitMQ** và lưu trữ dữ liệu trên **MongoDB** (chạy trong Docker).
 
 ---
