@@ -76,7 +76,7 @@ mỗi Servece (`auth`, `product`, `order`, `api-gateway`) cần file `Dockerfile
 
 ### 2️ Chạy dự án bằng Docker Compose
 
-`docker-compose up -d`
+`docker compose up --build`
 
 Sau khi chạy, Docker sẽ tạo các container:
 
